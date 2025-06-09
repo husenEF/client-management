@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from 'src/users/entity/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +31,34 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
     const payload = { sub: user.id, email: user.email, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    };
+  }
+
+  async register(registerDto: RegisterDto): Promise<{
+    access_token: string;
+    user: Pick<User, 'id' | 'name' | 'email' | 'role'>;
+  }> {
+    const existing = await this.usersService.findByEmail(registerDto.email);
+    if (existing) {
+      throw new Error('Email already in use');
+    }
+
+    const hashed = await bcrypt.hash(registerDto.password, 10);
+    const user = await this.usersService.create({
+      ...registerDto,
+      password: hashed,
+    });
+
+    const payload = { sub: user.id, email: user.email, role: user.role };
+
     return {
       access_token: this.jwtService.sign(payload),
       user: {
