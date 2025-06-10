@@ -9,7 +9,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
-import { JwtAuthGuard } from 'src/auth/auth.guard';
+import { JwtAuthGuard } from 'src/modules/auth/auth.guard';
 
 @Controller('users')
 export class UsersController {
