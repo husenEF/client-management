@@ -1,9 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcrypt';
-import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from './dto/register.dto';
+import { PasswordService } from '../password/password.service';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entity/user.entity';
 
 @Injectable()
@@ -11,62 +14,45 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly passwordService: PasswordService,
   ) {}
 
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<Pick<User, 'id' | 'name' | 'email' | 'role'> | null> {
+  public async login(email: string, password: string): Promise<string> {
     const user = await this.usersService.findByEmail(email);
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const { password: _, ...result } = user;
-      return result;
-    }
-    return null;
-  }
 
-  async login(loginDto: LoginDto) {
-    const user = await this.usersService.findByEmail(loginDto.email);
-    if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
+    // 1) Theres no such user
+    // 2) Password is invalid
+    if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload = { sub: user.id, email: user.email, role: user.role };
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    };
-  }
 
-  async register(registerDto: RegisterDto): Promise<{
-    access_token: string;
-    user: Pick<User, 'id' | 'name' | 'email' | 'role'>;
-  }> {
-    const existing = await this.usersService.findByEmail(registerDto.email);
-    if (existing) {
-      throw new Error('Email already in use');
+    if (!(await this.passwordService.verifyPassword(password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
-    const hashed = await bcrypt.hash(registerDto.password, 10);
-    const user = await this.usersService.create({
-      ...registerDto,
-      password: hashed,
-    });
+    return this.generateToken(user);
+  }
 
-    const payload = { sub: user.id, email: user.email, role: user.role };
+  public async register(createUserDto: CreateUserDto) {
+    const existingUser = await this.usersService.findByEmail(
+      createUserDto.email,
+    );
 
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    };
+    if (existingUser) {
+      throw new ConflictException('Email already exists');
+    }
+
+    const user = await this.usersService.create(createUserDto);
+
+    // 1) Return the user
+    // 2) Return the user & token
+    // 3) Return the token
+
+    return user;
+  }
+
+  private generateToken(user: User): string {
+    const payload = { sub: user.id, name: user.name };
+    return this.jwtService.sign(payload);
   }
 }
