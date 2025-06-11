@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { validationSchema } from './config/validation.schema';
+import { ClientModule } from './modules/client/client.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { validationSchema } from './config/validation.schema';
     }),
     UsersModule,
     AuthModule,
+    ClientModule,
   ],
   controllers: [AppController],
   providers: [AppService],

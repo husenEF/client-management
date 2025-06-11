@@ -6,7 +6,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { RegisterDto } from './dto/register.dto';
 import { LoginResponse } from '../users/interface/login.response';
 import { Role } from '../users/entity/user.role.enum';
-import { log } from 'console';
+import { AuthRequest } from './type/auth.request';
 
 @Controller('auth')
 export class AuthController {
@@ -23,7 +23,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getMe(@Request() req) {
+  getMe(@Request() req: AuthRequest) {
     return req.user; // dari JwtStrategy.validate()UsersService,
   }
 

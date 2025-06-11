@@ -4,8 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { Role } from './user.role.enum';
+import { Client } from 'src/modules/client/entities/client.entity';
 
 @Entity()
 export class User {
@@ -31,4 +33,7 @@ export class User {
   updatedAt: Date;
 
   // relasi ke entitas lain (nanti ditambahkan)
+  // 🔗 Tambahkan relasi ini:
+  @OneToMany(() => Client, (client) => client.owner)
+  clients: Client[];
 }
