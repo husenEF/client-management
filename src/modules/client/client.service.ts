@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Client } from './entities/client.entity';
@@ -33,11 +33,27 @@ export class ClientService {
     return this.clientRepository.findOne({ where: { id } });
   }
 
-  update(id: string, data: UpdateClientDto) {
-    return this.clientRepository.update(id, data);
+  private async getClientOrThrow(id: string, userId: string) {
+    const client = await this.clientRepository.findOne({
+      where: { id },
+      relations: ['owner'],
+    });
+
+    if (!client || client.owner.id !== userId) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    return client;
+  }
+  async update(id: string, userId: string, dto: UpdateClientDto) {
+    const client = await this.getClientOrThrow(id, userId);
+
+    Object.assign(client, dto);
+    return this.clientRepository.save(client);
   }
 
-  remove(id: string) {
-    return this.clientRepository.delete(id);
+  async remove(id: string, userId: string) {
+    const client = await this.getClientOrThrow(id, userId);
+    return this.clientRepository.remove(client);
   }
 }

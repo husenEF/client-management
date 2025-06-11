@@ -8,6 +8,7 @@ import {
   Param,
   UseGuards,
   Request,
+  HttpCode,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
@@ -42,12 +43,23 @@ export class ClientController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateClientDto) {
-    return this.clientService.update(id, dto);
+  @UseGuards(AuthGuard('jwt'))
+  async update(
+    @Param('id') id: string,
+    @Body() updateClientDto: UpdateClientDto,
+    @Request() req: AuthRequest,
+  ): Promise<Client> {
+    return this.clientService.update(id, req.user.id, updateClientDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.clientService.remove(id);
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(204)
+  async remove(
+    @Param('id') id: string,
+    @Request() req: AuthRequest,
+  ): Promise<void> {
+    await this.clientService.remove(id, req.user.id);
+    return;
   }
 }
