@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { validationSchema } from './config/validation.schema';
 import { ClientModule } from './modules/client/client.module';
+import { FollowUpModule } from './modules/follow-up/follow-up.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ClientModule } from './modules/client/client.module';
     UsersModule,
     AuthModule,
     ClientModule,
+    FollowUpModule,
   ],
   controllers: [AppController],
   providers: [AppService],

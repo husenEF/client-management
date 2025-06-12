@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Role } from './user.role.enum';
 import { Client } from 'src/modules/client/entities/client.entity';
+import { FollowUp } from 'src/modules/follow-up/entities/follow-up.entity';
 
 @Entity()
 export class User {
@@ -36,4 +37,7 @@ export class User {
   // 🔗 Tambahkan relasi ini:
   @OneToMany(() => Client, (client) => client.owner)
   clients: Client[];
+
+  @OneToMany(() => FollowUp, (followUp) => followUp.user)
+  followUps: FollowUp[];
 }

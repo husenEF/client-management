@@ -1,3 +1,4 @@
+import { FollowUp } from 'src/modules/follow-up/entities/follow-up.entity';
 import { User } from 'src/modules/users/entity/user.entity';
 import {
   Entity,
@@ -6,6 +7,7 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -36,4 +38,8 @@ export class Client {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // realationship
+  @OneToMany(() => FollowUp, (followUp) => followUp.client)
+  followUps: FollowUp[];
 }
