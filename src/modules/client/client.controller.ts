@@ -33,7 +33,6 @@ export class ClientController {
   @Get()
   @UseGuards(AuthGuard('jwt'))
   findAll(@Request() req: AuthRequest) {
-    console.log({ user: req.user.sub });
     return this.clientService.findAll(req.user.sub);
   }
 
