@@ -15,11 +15,13 @@ export class FollowUpService {
     @InjectRepository(Client)
     private readonly clientRepo: Repository<Client>,
   ) {}
+
   async create(userId: string, dto: CreateFollowUpDto) {
     const client = await this.clientRepo.findOneBy({ id: dto.clientId });
     if (!client) throw new NotFoundException('Client not found');
 
     const followUp = this.followUpRepo.create({
+      title: dto.title,
       note: dto.note,
       followUpDate: new Date(dto.followUpDate),
       client,

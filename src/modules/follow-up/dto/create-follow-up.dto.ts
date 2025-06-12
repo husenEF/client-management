@@ -12,8 +12,5 @@ export class CreateFollowUpDto {
   followUpDate: string;
 
   @IsUUID()
-  userId: string;
-
-  @IsUUID()
   clientId: string;
 }

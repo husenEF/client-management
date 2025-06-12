@@ -1,3 +1,4 @@
+// follow-up/entities/follow-up.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -17,7 +18,7 @@ export class FollowUp {
   @Column()
   title: string;
 
-  @Column({ nullable: true })
+  @Column()
   note?: string;
 
   @Column()
