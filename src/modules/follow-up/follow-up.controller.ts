@@ -5,11 +5,15 @@ import {
   Body,
   UseGuards,
   Request,
+  Param,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { FollowUpService } from './follow-up.service';
 import { CreateFollowUpDto } from './dto/create-follow-up.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AuthRequest } from '../auth/type/auth.request';
+import { UpdateFollowUpDto } from './dto/update-follow-up.dto';
 
 @Controller('follow-ups')
 @UseGuards(JwtAuthGuard)
@@ -26,17 +30,27 @@ export class FollowUpController {
     return this.followUpService.findByUser(req.user.id);
   }
 
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() dto: UpdateFollowUpDto,
-  //   @Request() req: AuthRequest,
-  // ) {
-  //   return this.followUpService.update(id, req.user.id, dto);
-  // }
+  @Get()
+  findAll(@Request() req: AuthRequest) {
+    return this.followUpService.findAll(req.user.id);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string, @Request() req: AuthRequest) {
-  //   return this.followUpService.remove(id, req.user.id);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.followUpService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateFollowUpDto,
+    @Request() req: AuthRequest,
+  ) {
+    return this.followUpService.update(id, dto, req.user.id);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string, @Request() req: AuthRequest) {
+    return this.followUpService.remove(id, req.user.id);
+  }
 }
